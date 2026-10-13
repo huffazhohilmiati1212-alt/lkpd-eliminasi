@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LKPD SPLDV - Metode Eliminasi</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(180deg,#ffe4ef 0%,#fff5f9 100%);
+    margin: 0; padding: 12px; color: #4a1d2e; line-height: 1.55;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  .card {
+    background: #fff; border-radius: 18px; padding: 20px;
+    margin-bottom: 16px; box-shadow: 0 4px 16px rgba(220,80,140,.12);
+    border: 2px solid #ffd0e0;
+  }
+  .header {
+    background: linear-gradient(135deg,#ff7eb3,#ff5c8d);
+    color: #fff; text-align: center; padding: 24px 16px;
+    border-radius: 18px; margin-bottom: 16px;
+  }
+  .header h1 { margin: 0 0 6px; font-size: 20px; }
+  .header p { margin: 4px 0; font-size: 13px; opacity: .95; }
+  h2 {
+    font-size: 16px; color: #d63384; margin: 0 0 12px;
+    padding: 10px 14px; background: #fff0f6; border-radius: 12px;
+    border-left: 5px solid #ff5c8d;
+  }
+  h3 { font-size: 14px; color: #b03060; margin: 16px 0 8px; }
+  label { font-weight: 600; display: block; margin: 10px 0 6px; font-size: 13px; color: #6d2039; }
+  input[type=text], input[type=number], textarea, select {
+    width: 100%; padding: 11px 13px; border-radius: 10px;
+    border: 1.5px solid #ffc2d6; font-size: 14px; font-family: inherit;
+    background: #fffafc; color: #4a1d2e;
+  }
+  input:focus, textarea:focus { outline: none; border-color: #ff5c8d; background: #fff; }
+  textarea { min-height: 70px; resize: vertical; }
+  .tbl { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+  .tbl th, .tbl td { border: 1.5px solid #ffc2d6; padding: 6px; text-align: center; }
+  .tbl th { background: #ffe0ec; color: #b03060; font-weight: 700; font-size: 12px; }
+  .tbl input { border: none; background: transparent; padding: 6px; text-align: center; font-size: 13px; width: 100%; }
+  .tbl input:focus { background: #fff0f6; }
+  .radio-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; }
+  .radio-row label {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 500; margin: 0; cursor: pointer;
+    background: #fff0f6; padding: 8px 14px; border-radius: 10px;
+    border: 1.5px solid #ffc2d6;
+  }
+  .radio-row input { width: auto; margin: 0; accent-color: #ff5c8d; }
+  .info-box {
+    background: #fff8dc; border: 1.5px dashed #f4c430; border-radius: 12px;
+    padding: 12px 14px; font-size: 13px; margin: 10px 0;
+  }
+  .problem-box {
+    background: linear-gradient(135deg,#fff0f6,#ffe4ef);
+    border: 2px solid #ffb8d0; border-radius: 14px;
+    padding: 14px; margin: 10px 0; font-size: 13.5px;
+  }
+  .problem-box strong { color: #d63384; }
+  .math {
+    font-family: 'Cambria Math', 'Times New Roman', serif;
+    font-style: italic; font-size: 15px;
+  }
+  .eq-row {
+    display: flex; align-items: center; gap: 6px; margin: 6px 0;
+    flex-wrap: wrap; font-size: 14px;
+  }
+  .eq-row input { flex: 1; min-width: 60px; padding: 8px 8px; font-size: 14px; text-align: center; }
+  .eq-row span { font-weight: 600; color: #b03060; white-space: nowrap; }
+  .eq-box {
+    background: #fffafc; border: 1.5px dashed #ffc2d6;
+    border-radius: 12px; padding: 12px; margin: 10px 0;
+  }
+  .eq-line {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin: 6px 0; flex-wrap: wrap;
+  }
+  .eq-line .lbl { min-width: 140px; font-weight: 600; color: #6d2039; font-size: 13px; }
+  .eq-line .val { flex: 1; min-width: 60px; }
+  .eq-line .val input { width: 100%; padding: 8px; font-size: 14px; text-align: center; }
+  .minus-line {
+    text-align: center; color: #d63384; font-weight: 700;
+    margin: 4px 0; font-size: 13px; letter-spacing: 1px;
+  }
+  button {
+    width: 100%; padding: 15px; margin-top: 20px;
+    background: linear-gradient(135deg,#ff5c8d,#d63384);
+    color: #fff; border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(214,51,132,.35);
+  }
+  button:disabled { opacity: .6; }
+  .success { background: #dcfce7; color: #166534; padding: 14px; border-radius: 12px; text-align: center; margin-top: 14px; font-weight: 600; }
+  .error { background: #fee2e2; color: #991b1b; padding: 14px; border-radius: 12px; text-align: center; margin-top: 14px; font-weight: 600; }
+  .badge {
+    display: inline-block; background: #ff5c8d; color: #fff;
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; margin-bottom: 6px;
+  }
+  .saved { position: fixed; bottom: 12px; right: 12px; background: #ff5c8d; color: #fff;
+    padding: 6px 12px; border-radius: 20px; font-size: 11px; opacity: 0; transition: opacity .3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2); z-index: 99; }
+  .saved.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🍩 LKPD SPLDV — Metode Eliminasi 🍬</h1>
+    <p>Matematika Kelas VIII SMP</p>
+    <p>Sistem Persamaan Linear Dua Variabel</p>
+    <p style="margin-top:10px;font-size:12px;">⏱ Waktu: 2 × 40 menit · Model: Problem Based Learning</p>
+  </div>
+
+  <!-- IDENTITAS -->
+  <div class="card">
+    <h2>👥 Identitas Kelompok</h2>
+    <label>Nama Kelompok</label>
+    <input type="text" id="kelompok" placeholder="Contoh: Kelompok 1">
+    <label>Anggota 1 (Nama Lengkap)</label>
+    <input type="text" id="anggota1" placeholder="Nama anggota 1">
+    <label>Anggota 2</label>
+    <input type="text" id="anggota2" placeholder="Nama anggota 2">
+    <label>Anggota 3</label>
+    <input type="text" id="anggota3" placeholder="Nama anggota 3">
+    <label>Anggota 4</label>
+    <input type="text" id="anggota4" placeholder="Nama anggota 4">
+    <label>Anggota 5</label>
+    <input type="text" id="anggota5" placeholder="Nama anggota 5">
+  </div>
+
+  <!-- TUJUAN PEMBELAJARAN -->
+  <div class="card">
+    <h2>🎯 Tujuan Pembelajaran</h2>
+    <div class="problem-box">
+      Peserta didik mampu menyelesaikan sistem persamaan linear dua variabel melalui beberapa cara untuk penyelesaian masalah.
+    </div>
+  </div>
+
+  <!-- INDIKATOR TUJUAN PEMBELAJARAN -->
+  <div class="card">
+    <h2>✅ Indikator Tujuan Pembelajaran</h2>
+    <ol style="padding-left:22px;margin:8px 0;font-size:13.5px;line-height:1.7;">
+      <li>Peserta didik mampu <strong>mengidentifikasi informasi</strong> yang diketahui dan ditanyakan serta menentukan variabel dari masalah kontekstual.</li>
+      <li>Peserta didik mampu <strong>mengidentifikasi hubungan antarbesaran</strong> dan memodelkannya ke dalam dua PLDV berdasarkan masalah kontekstual.</li>
+      <li>Peserta didik mampu <strong>menyelesaikan secara numerik dan kontekstual</strong> SPLDV dengan metode eliminasi.</li>
+    </ol>
+  </div>
+
+  <!-- SINTAKS PBL -->
+  <div class="card">
+    <h2>📚 Sintaks Problem Based Learning</h2>
+    <ol style="padding-left:22px;margin:8px 0;font-size:13.5px;line-height:1.8;">
+      <li>Orientasi peserta didik pada masalah</li>
+      <li>Mengorganisasikan peserta didik untuk belajar</li>
+      <li>Membimbing penyelidikan individu maupun kelompok</li>
+      <li>Mengembangkan dan menyajikan hasil karya</li>
+      <li>Menganalisis dan mengevaluasi proses pemecahan masalah</li>
+    </ol>
+  </div>
+
+  <!-- INFORMASI AWAL -->
+  <div class="card">
+    <h2>📢 Informasi Awal</h2>
+    <div class="info-box">
+      <strong>Metode eliminasi</strong> adalah cara menyelesaikan SPLDV dengan <strong>menghilangkan salah satu variabel</strong> dari dua persamaan.
+      <br><br>
+      Langkahnya: samakan koefisien salah satu variabel (jika perlu), lalu <strong>jumlahkan atau kurangkan</strong> kedua persamaan sehingga salah satu variabel hilang. Setelah satu nilai variabel diperoleh, gunakan untuk menentukan variabel lainnya.
+    </div>
+  </div>
+
+  <!-- ================= TAHAP 1 ================= -->
+  <div class="card">
+    <span class="badge">TAHAP 1</span>
+    <h2>🎯 Orientasi Peserta Didik pada Masalah</h2>
+    <h3>Petualangan Andi di Toko Kue</h3>
+    <div class="problem-box">
+      Andi mendapat nilai 100 pada ulangan matematika. Karena senang, ia ingin membelikan adiknya kue di <strong>Toko Kue</strong>.
+      <br><br>
+      Di depan toko, Andi bertemu <strong>Tisya</strong> yang baru membeli <strong>2 donat dan 3 permen</strong> seharga <strong>Rp13.000</strong>.
+      <br><br>
+      Tak lama kemudian, Andi bertemu <strong>Dimas</strong> yang membeli <strong>10 donat dan 6 permen</strong> seharga <strong>Rp47.000</strong>.
+      <br><br>
+      Andi penasaran ingin tahu harga satu donat dan satu permen. Ia berencana membeli <strong>3 donat dan 3 permen</strong>. Ia membawa uang <strong>Rp20.000</strong> dan bertanya: <em>"Apakah uangku cukup?"</em>
+    </div>
+
+    <h3>1️⃣ Informasi apa saja yang kalian peroleh dari cerita tersebut?</h3>
+    <table class="tbl">
+      <tr><th>Ikon</th><th>Informasi</th><th>Isi Informasi</th></tr>
+      <tr><td>🍩</td><td>Pembelian Tisya</td><td><input type="text" id="t1_tisya" placeholder="..."></td></tr>
+      <tr><td>🍬</td><td>Pembelian Dimas</td><td><input type="text" id="t1_dimas" placeholder="..."></td></tr>
+      <tr><td>🛒</td><td>Rencana Pembelian Andi</td><td><input type="text" id="t1_andi" placeholder="..."></td></tr>
+      <tr><td>❓</td><td>Yang ingin diketahui Andi</td><td><input type="text" id="t1_ditanya" placeholder="..."></td></tr>
+    </table>
+
+    <h3>2️⃣ Apa yang belum diketahui dari permasalahan tersebut?</h3>
+    <textarea id="t1_belum_diketahui" placeholder="Tulis jawabanmu..."></textarea>
+  </div>
+
+  <!-- ================= TAHAP 2 ================= -->
+  <div class="card">
+    <span class="badge">TAHAP 2</span>
+    <h2>🧩 Mengorganisasikan Peserta Didik untuk Belajar</h2>
+    <h3>Tentukan Variabel</h3>
+    <div class="info-box">
+      <strong>Misalkan:</strong><br>
+      <span class="math">x = harga 1 donat</span><br>
+      <span class="math">y = harga 1 permen</span>
+    </div>
+
+    <table class="tbl">
+      <tr>
+        <th>Pembeli</th><th>Banyak Donat (buah)</th><th>Banyak Permen (buah)</th>
+        <th>Total Harga (Rp)</th><th>Model Matematika</th>
+      </tr>
+      <tr>
+        <td><b>Tisya</b></td>
+        <td><input type="text" id="t2_tisya_donat"></td>
+        <td><input type="text" id="t2_tisya_permen"></td>
+        <td><input type="text" id="t2_tisya_total"></td>
+        <td><input type="text" id="t2_tisya_model" placeholder="...x + ...y = ..."></td>
+      </tr>
+      <tr>
+        <td><b>Dimas</b></td>
+        <td><input type="text" id="t2_dimas_donat"></td>
+        <td><input type="text" id="t2_dimas_permen"></td>
+        <td><input type="text" id="t2_dimas_total"></td>
+        <td><input type="text" id="t2_dimas_model" placeholder="...x + ...y = ..."></td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <strong>💡 Jadi, model matematika dari permasalahan ini adalah:</strong>
+    </div>
+    <label>Persamaan 1</label>
+    <input type="text" id="t2_pers1" placeholder="Contoh: 2x + 3y = 13.000">
+    <label>Persamaan 2</label>
+    <input type="text" id="t2_pers2" placeholder="Contoh: 10x + 6y = 47.000">
+  </div>
+
+  <!-- ================= TAHAP 3 · LANGKAH 1 ================= -->
+  <div class="card">
+    <span class="badge">TAHAP 3 · LANGKAH 1</span>
+    <h2>🔍 Membimbing Penyelidikan — Memilih Variabel & Menyamakan Koefisien</h2>
+    <div class="info-box">
+      <strong>Informasi yang didapat:</strong><br>
+      <span class="math">10x + 6y = 47.000</span><br>
+      <span class="math">2x + 3y = 13.000</span>
+    </div>
+
+    <label>Menurutmu, variabel mana yang lebih mudah dieliminasi? Mengapa?</label>
+    <textarea id="t3a_variabel" placeholder="Variabel ... karena ..."></textarea>
+
+    <div class="info-box">💡 <b>Petunjuk:</b> Pilih variabel yang KPK dari koefisiennya paling kecil.</div>
+
+    <h3>Langkah selanjutnya: samakan koefisiennya</h3>
+    <div class="eq-box">
+      <div class="eq-line">
+        <span class="lbl math">10x + 6y = 47.000</span>
+        <span>×</span>
+        <div class="val"><input type="text" id="t3a_kali_p1" placeholder="..."></div>
+        <span>=</span>
+        <div class="val" style="flex:2;"><input type="text" id="t3a_hasil_p1" placeholder="... + ... = ..."></div>
+      </div>
+      <div class="eq-line">
+        <span class="lbl math">2x + 3y = 13.000</span>
+        <span>×</span>
+        <div class="val"><input type="text" id="t3a_kali_p2" placeholder="..."></div>
+        <span>=</span>
+        <div class="val" style="flex:2;"><input type="text" id="t3a_hasil_p2" placeholder="... + ... = ..."></div>
+      </div>
+    </div>
+
+    <label>Cek: apakah koefisien yang dipilih sudah sama?</label>
+    <div class="radio-row">
+      <label><input type="radio" name="t3a_cek" value="Ya"> Ya</label>
+      <label><input type="radio" name="t3a_cek" value="Tidak"> Tidak</label>
+    </div>
+
+    <label>Operasi apa yang tepat digunakan? Mengapa?</label>
+    <textarea id="t3a_operasi" placeholder="Operasi ... karena ..."></textarea>
+
+    <div class="info-box">
+      ⚠️ <b>Antisipasi Kesalahan:</b><br>
+      1. Semua suku sudah dikali? (termasuk konstanta di ruas kanan)<br>
+      2. Tanda berubah saat mengurang?<br>
+      3. Konstanta ikut dikali?
+    </div>
+  </div>
+
+  <!-- ================= TAHAP 3 · LANGKAH 2 (FLEKSIBEL) ================= -->
+  <div class="card">
+    <span class="badge">TAHAP 3 · LANGKAH 2</span>
+    <h2>➗ Melakukan Operasi & Mengeliminasi Variabel</h2>
+
+    <div class="info-box">
+      🎯 <b>Kalian bebas memilih</b> mau mengeliminasi variabel mana dulu (x atau y).
+      Tuliskan langkah kalian pada titik-titik di bawah ini!
+    </div>
+
+    <!-- ============ ELIMINASI PERTAMA ============ -->
+    <h3>🔹 Eliminasi Pertama</h3>
+    <div class="eq-row">
+      <span>Variabel yang dieliminasi:</span>
+      <input type="text" id="t3b_var1" placeholder="x atau y" style="flex:1;">
+    </div>
+
+    <p style="font-size:13px;margin:10px 0 4px;">Tuliskan persamaan setelah dikalikan dengan bilangan yang sesuai:</p>
+    <div class="eq-box">
+      <div class="eq-row">
+        <input type="text" id="t3b_1_a" placeholder="...x" style="flex:1;">
+        <span>+</span>
+        <input type="text" id="t3b_1_b" placeholder="...y" style="flex:1;">
+        <span>=</span>
+        <input type="text" id="t3b_1_c" placeholder="..." style="flex:1;">
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t3b_1_d" placeholder="...x" style="flex:1;">
+        <span>+</span>
+        <input type="text" id="t3b_1_e" placeholder="...y" style="flex:1;">
+        <span>=</span>
+        <input type="text" id="t3b_1_f" placeholder="..." style="flex:1;">
+      </div>
+      <div class="minus-line">
+        — — — — — (
+        <input type="text" id="t3b_1_opsi" style="width:60px;display:inline-block;padding:4px;text-align:center;" placeholder="+/-">
+        )
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t3b_1_g" placeholder="..." style="flex:1;">
+        <span>=</span>
+        <input type="text" id="t3b_1_h" placeholder="..." style="flex:1;">
+      </div>
+    </div>
+
+    <div class="eq-row">
+      <span>Maka diperoleh:</span>
+      <input type="text" id="t3b_1_var" placeholder="x / y" style="flex:1;">
+      <span>=</span>
+      <input type="text" id="t3b_1_nilai" placeholder="..." style="flex:1;">
+    </div>
+
+    <div class="info-box">
+      ✅ Jadi, nilai <input type="text" id="t3b_1_ket_var" style="width:60px;display:inline-block;padding:4px;text-align:center;" placeholder="x / y">
+      yang didapatkan adalah <input type="text" id="t3b_1_ket_nilai" style="width:auto;display:inline-block;padding:4px 8px;" placeholder="...">
+    </div>
+
+    <!-- ============ ELIMINASI KEDUA ============ -->
+    <h3>🔹 Eliminasi Kedua</h3>
+    <div class="eq-row">
+      <span>Variabel yang dieliminasi:</span>
+      <input type="text" id="t3b_var2" placeholder="x atau y" style="flex:1;">
+    </div>
+
+    <p style="font-size:13px;margin:10px 0 4px;">Tuliskan persamaan setelah dikalikan dengan bilangan yang sesuai:</p>
+    <div class="eq-box">
+      <div class="eq-row">
+        <input type="text" id="t3b_2_a" placeholder="...x" style="flex:1;">
+        <span>+</span>
+        <input type="text" id="t3b_2_b" placeholder="...y" style="flex:1;">
+        <span>=</span>
+        <input type="text" id="t3b_2_c" placeholder="..." style="flex:1;">
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t3b_2_d" placeholder="...x" style="flex:1;">
+        <span>+</span>
+        <input type="text" id="t3b_2_e" placeholder="...y" style="flex:1;">
+        <span>=</span>
+        <input type="text" id="t3b_2_f" placeholder="..." style="flex:1;">
+      </div>
+      <div class="minus-line">
+        — — — — — (
+        <input type="text" id="t3b_2_opsi" style="width:60px;display:inline-block;padding:4px;text-align:center;" placeholder="+/-">
+        )
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t3b_2_g" placeholder="..." style="flex:1;">
+        <span>=</span>
+        <input type="text" id="t3b_2_h" placeholder="..." style="flex:1;">
+      </div>
+    </div>
+
+    <div class="eq-row">
+      <span>Maka diperoleh:</span>
+      <input type="text" id="t3b_2_var" placeholder="x / y" style="flex:1;">
+      <span>=</span>
+      <input type="text" id="t3b_2_nilai" placeholder="..." style="flex:1;">
+    </div>
+
+    <div class="info-box">
+      ✅ Jadi, nilai <input type="text" id="t3b_2_ket_var" style="width:60px;display:inline-block;padding:4px;text-align:center;" placeholder="x / y">
+      yang didapatkan adalah <input type="text" id="t3b_2_ket_nilai" style="width:auto;display:inline-block;padding:4px 8px;" placeholder="...">
+    </div>
+
+    <!-- ============ KESIMPULAN ============ -->
+    <h3>📝 Kesimpulan Nilai Variabel</h3>
+    <div class="eq-row">
+      <span>Harga 1 donat (x) =</span>
+      <input type="text" id="t3b_kesimpulan_x" placeholder="Rp..." style="flex:1;">
+    </div>
+    <div class="eq-row">
+      <span>Harga 1 permen (y) =</span>
+      <input type="text" id="t3b_kesimpulan_y" placeholder="Rp..." style="flex:1;">
+    </div>
+  </div>
+
+  <!-- ================= TAHAP 3 · LANGKAH 3 ================= -->
+  <div class="card">
+    <span class="badge">TAHAP 3 · LANGKAH 3</span>
+    <h2>🍩 Menyelesaikan Permasalahan Andi</h2>
+    <div class="problem-box">
+      Andi ingin membeli <strong>3 donat dan 3 permen</strong> untuk adiknya.<br>
+      Ia membawa uang sebesar <strong>Rp20.000</strong>.<br>
+      <strong>Apakah uang Andi cukup?</strong>
+    </div>
+
+    <table class="tbl">
+      <tr><th>Unsur</th><th>Nilai</th></tr>
+      <tr><td>Harga 1 donat (x)</td><td><input type="text" id="t3c_harga_x"></td></tr>
+      <tr><td>Harga 1 permen (y)</td><td><input type="text" id="t3c_harga_y"></td></tr>
+      <tr><td>Model matematika</td><td><input type="text" id="t3c_model" placeholder="3x + 3y = ..."></td></tr>
+      <tr><td>Substitusi</td><td><input type="text" id="t3c_substitusi" placeholder="3(...) + 3(...) = ..."></td></tr>
+      <tr><td>Total harga</td><td><input type="text" id="t3c_total"></td></tr>
+      <tr><td>Uang Andi</td><td><b style="color:#d63384;">Rp20.000</b></td></tr>
+    </table>
+
+    <label>Kesimpulan:</label>
+    <div class="radio-row">
+      <label><input type="radio" name="t3c_kesimpulan" value="Uang Andi cukup"> Uang Andi cukup</label>
+      <label><input type="radio" name="t3c_kesimpulan" value="Uang Andi tidak cukup"> Uang Andi tidak cukup</label>
+    </div>
+
+    <label>Alasan:</label>
+    <textarea id="t3c_alasan" placeholder="Karena..."></textarea>
+  </div>
+
+  <!-- ================= TAHAP 4 ================= -->
+  <div class="card">
+    <span class="badge">TAHAP 4</span>
+    <h2>📣 Mengembangkan dan Mempresentasikan Hasil Karya</h2>
+
+    <table class="tbl">
+      <tr><th>Unsur</th><th>Nilai</th></tr>
+      <tr><td>🍩 Harga 1 donat (x)</td><td>Rp <input type="text" id="t4_harga_x" style="width:auto;display:inline-block;"></td></tr>
+      <tr><td>🍬 Harga 1 permen (y)</td><td>Rp <input type="text" id="t4_harga_y" style="width:auto;display:inline-block;"></td></tr>
+      <tr><td>🍩🍬 Total harga 3 donat + 3 permen</td><td>Rp <input type="text" id="t4_total" style="width:auto;display:inline-block;"></td></tr>
+      <tr><td>💰 Uang Andi</td><td><b style="color:#d63384;">Rp20.000</b></td></tr>
+      <tr><td>📋 Kesimpulan</td><td><input type="text" id="t4_kesimpulan"></td></tr>
+    </table>
+
+    <label>Tuliskan ringkasan jawaban dari kelompok kalian secara singkat!</label>
+    <textarea id="t4_ringkasan" placeholder="Tulis ringkasan..." style="min-height:110px;"></textarea>
+
+    <label>Pilihlah salah satu penyajian yang kelompok kalian pilih:</label>
+    <div class="radio-row">
+      <label><input type="radio" name="t4_penyajian" value="Tertulis"> 📓 Tertulis</label>
+      <label><input type="radio" name="t4_penyajian" value="Poster Sederhana"> 🎨 Poster Sederhana</label>
+      <label><input type="radio" name="t4_penyajian" value="Presentasi Lisan"> 🎤 Presentasi Lisan</label>
+    </div>
+  </div>
+
+  <!-- ================= TAHAP 5 ================= -->
+  <div class="card">
+    <span class="badge">TAHAP 5</span>
+    <h2>🔎 Menganalisis dan Mengevaluasi</h2>
+    <p style="font-size:13px;">Masukkan nilai <b>x</b> dan <b>y</b> yang kalian peroleh ke dalam kedua persamaan!</p>
+
+    <h3>Persamaan pertama: <span class="math">2x + 3y = 13.000</span></h3>
+    <div class="eq-box">
+      <div class="eq-row">
+        <span>2(</span><input type="text" id="t5_p1_subx" placeholder="x">
+        <span>) + 3(</span><input type="text" id="t5_p1_suby" placeholder="y">
+        <span>) =</span><input type="text" id="t5_p1_hasil1" placeholder="hasil">
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t5_p1_a" placeholder="a"><span>+</span>
+        <input type="text" id="t5_p1_b" placeholder="b"><span>=</span>
+        <input type="text" id="t5_p1_hasil2" placeholder="c">
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t5_p1_total"><span>=</span>
+        <input type="text" id="t5_p1_hasil3" placeholder="c">
+      </div>
+    </div>
+    <label>Apakah hasilnya sesuai?</label>
+    <div class="radio-row">
+      <label><input type="radio" name="t5_p1_sesuai" value="Ya"> ✅ Ya</label>
+      <label><input type="radio" name="t5_p1_sesuai" value="Tidak"> ❌ Tidak</label>
+    </div>
+
+    <h3>Persamaan kedua: <span class="math">10x + 6y = 47.000</span></h3>
+    <div class="eq-box">
+      <div class="eq-row">
+        <span>10(</span><input type="text" id="t5_p2_subx" placeholder="x">
+        <span>) + 6(</span><input type="text" id="t5_p2_suby" placeholder="y">
+        <span>) =</span><input type="text" id="t5_p2_hasil1" placeholder="hasil">
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t5_p2_a" placeholder="a"><span>+</span>
+        <input type="text" id="t5_p2_b" placeholder="b"><span>=</span>
+        <input type="text" id="t5_p2_hasil2" placeholder="c">
+      </div>
+      <div class="eq-row">
+        <input type="text" id="t5_p2_total"><span>=</span>
+        <input type="text" id="t5_p2_hasil3" placeholder="c">
+      </div>
+    </div>
+    <label>Apakah hasilnya sesuai?</label>
+    <div class="radio-row">
+      <label><input type="radio" name="t5_p2_sesuai" value="Ya"> ✅ Ya</label>
+      <label><input type="radio" name="t5_p2_sesuai" value="Tidak"> ❌ Tidak</label>
+    </div>
+
+    <label>Apa yang dapat kalian simpulkan dari pemeriksaan ini?</label>
+    <textarea id="t5_simpulan_periksa" placeholder="Tulis kesimpulan pemeriksaan..."></textarea>
+
+    <label>Buatkan kesimpulan dari apa yang kalian pelajari!</label>
+    <textarea id="t5_simpulan_akhir" placeholder="Tulis kesimpulan pembelajaran..." style="min-height:100px;"></textarea>
+  </div>
+
+  <!-- TOMBOL KIRIM -->
+  <div class="card">
+    <button id="btnKirim" onclick="kirim()">📤 Kirim Jawaban</button>
+    <div id="pesan"></div>
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:#b03060;margin-top:8px;">
+    LKPD Digital · SPLDV Metode Eliminasi · Kelas VIII SMP
+  </p>
+</div>
+
+<div class="saved" id="savedIndicator">✓ Tersimpan otomatis</div>
+
+<script>
+  // ⚠️ GANTI dengan URL Web App dari Google Apps Script kamu
+  const URL_APPS_SCRIPT = "https://script.google.com/macros/s/GANTI_DENGAN_URL_KAMU/exec";
+
+  const STORAGE_KEY = 'lkpd_spldv_eliminasi_v4';
+
+  function collectData() {
+    const data = {};
+    document.querySelectorAll('input[type=text], input[type=number], textarea').forEach(el => {
+      if (el.id) data[el.id] = el.value.trim();
+    });
+    const radioNames = new Set();
+    document.querySelectorAll('input[type=radio]').forEach(el => radioNames.add(el.name));
+    radioNames.forEach(name => {
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      data[name] = checked ? checked.value : "";
+    });
+    return data;
+  }
+
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
+      const ind = document.getElementById('savedIndicator');
+      ind.classList.add('show');
+      clearTimeout(window._savedTimer);
+      window._savedTimer = setTimeout(() => ind.classList.remove('show'), 1200);
+    } catch(e) {}
+  }
+
+  function loadData() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      Object.entries(data).forEach(([key, val]) => {
+        const el = document.getElementById(key);
+        if (el && el.type !== 'radio') {
+          el.value = val;
+        } else {
+          const radio = document.querySelector(`input[name="${key}"][value="${val}"]`);
+          if (radio) radio.checked = true;
+        }
+      });
+    } catch(e) {}
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    document.querySelectorAll('input, textarea').forEach(el => {
+      el.addEventListener('input', saveData);
+      el.addEventListener('change', saveData);
+    });
+  });
+
+  async function kirim() {
+    const btn = document.getElementById('btnKirim');
+    const pesan = document.getElementById('pesan');
+
+    const kelompok = document.getElementById('kelompok').value.trim();
+    const anggota1 = document.getElementById('anggota1').value.trim();
+    if (!kelompok || !anggota1) {
+      pesan.innerHTML = '<div class="error">⚠️ Nama kelompok dan minimal Anggota 1 wajib diisi!</div>';
+      window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+      return;
+    }
+
+    const data = collectData();
+    data.timestamp = new Date().toLocaleString('id-ID');
+
+    btn.disabled = true;
+    btn.textContent = "⏳ Mengirim...";
+
+    try {
+      await fetch(URL_APPS_SCRIPT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      pesan.innerHTML = '<div class="success">✅ Jawaban berhasil dikirim! Terima kasih 🎉</div>';
+      btn.textContent = "✔ Terkirim";
+      btn.style.background = "linear-gradient(135deg,#22c55e,#16a34a)";
+      window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+    } catch (err) {
+      pesan.innerHTML = '<div class="error">❌ Gagal kirim. Periksa koneksi lalu coba lagi.</div>';
+      btn.disabled = false;
+      btn.textContent = "📤 Kirim Ulang";
+    }
+  }
+</script>
+</body>
+</html>
